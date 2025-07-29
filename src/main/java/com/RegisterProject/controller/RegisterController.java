@@ -2,6 +2,8 @@ package com.RegisterProject.controller;
 
 import com.RegisterProject.entity.Register;
 import com.RegisterProject.exception.EmployeeFoundException;
+import com.RegisterProject.payLoad.ApiResponse;
+import com.RegisterProject.payLoad.RegisterResponseDTO;
 import com.RegisterProject.service.RegisterService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.repository.query.Param;
@@ -26,17 +28,39 @@ public class RegisterController {
 //        Register savedRegister = registerService.createRegister(register); // assuming you have a service layer
 //        return new ResponseEntity<>(savedRegister, HttpStatus.CREATED);
 //    }
+//    @PostMapping("/add/{employeeId}")
+//    public ResponseEntity<Map<String,Object>> createRegister(@RequestBody Register register, @PathVariable String employeeId) throws EmployeeFoundException {
+//        Register savedRegister = registerService.createRegister(register,employeeId);
+//
+//        Map<String, Object> response = new HashMap<>();
+//        response.put("message", "User registered successfully");
+////        response.put("data", obj);
+////        response.put("status", HttpStatus.CREATED.value());
+//        response.put("status",true);
+//
+//        return new ResponseEntity<>(response, HttpStatus.CREATED);
+//    }
+
     @PostMapping("/add/{employeeId}")
-    public ResponseEntity<Map<String,Object>> createRegister(@RequestBody Register register, @PathVariable String employeeId) throws EmployeeFoundException {
-        Register savedRegister = registerService.createRegister(register,employeeId);
+    public ApiResponse<RegisterResponseDTO> registerUser(
+            @RequestBody Register register,
+            @PathVariable String employeeId) throws EmployeeFoundException {
+        Register savedRegister = registerService.createRegister(register, employeeId);
 
-        Map<String, Object> response = new HashMap<>();
-        response.put("message", "User registered successfully");
-//        response.put("data", obj);
-//        response.put("status", HttpStatus.CREATED.value());
-        response.put("status",true);
+        RegisterResponseDTO responseData = new RegisterResponseDTO(
+                savedRegister.getEmployeeId(),    // Assuming this is the database ID or employee ID
+                savedRegister.getUserName()
+        );
 
-        return new ResponseEntity<>(response, HttpStatus.CREATED);
+
+        ApiResponse<RegisterResponseDTO> response = new ApiResponse<>(
+                true,
+                "User registered successfully",
+                responseData,
+                null
+        );
+
+        return response;
     }
 
 //    @GetMapping("/getAll")
