@@ -2,23 +2,22 @@ package com.RegisterProject.payLoad;
 
 
 public class RegisterResponseDTO {
-    private String id;
+    private String employeeId;
     private String username;
 
     public RegisterResponseDTO() {}
 
-    public RegisterResponseDTO(String id, String username) {
-        this.id = id;
+    public RegisterResponseDTO(String employeeId, String username) {
+        this.employeeId = employeeId;
         this.username = username;
     }
 
-    // Getters and Setters
-    public String getId() {
-        return id;
+    public String getEmployeeId() {
+        return employeeId;
     }
 
-    public void setId(String id) {
-        this.id = id;
+    public void setEmployeeId(String employeeId) {
+        this.employeeId = employeeId;
     }
 
     public String getUsername() {
