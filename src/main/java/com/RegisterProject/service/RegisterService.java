@@ -1,11 +1,16 @@
 package com.RegisterProject.service;
 
 import com.RegisterProject.entity.Register;
+import com.RegisterProject.exception.EmailFoundException;
 import com.RegisterProject.exception.EmployeeFoundException;
+import com.RegisterProject.exception.UserNameFoundException;
+import com.RegisterProject.exception.UserNameNotFoundException;
+import com.RegisterProject.payLoad.RegisterResponseDTO;
 import com.RegisterProject.repository.RegisterRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.graphql.GraphQlProperties;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -16,17 +21,28 @@ public class RegisterService {
     @Autowired
     RegisterRepository registerRepository;
 
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
-    public Register createRegister(Register register, String employeeId) throws EmployeeFoundException {
-        Register reg = registerRepository.findByEmployeeId(employeeId);
-        if(reg!=null)
-        {
-            throw new EmployeeFoundException("The Employee is Already Registered...", String.valueOf(HttpStatus.FOUND.value()));
-        }
-        else {
-            register.setEmployeeId(employeeId);
-            return registerRepository.save(register);
-        }
+
+    public Register createRegister(Register register) throws EmployeeFoundException, UserNameFoundException, EmailFoundException {
+       if (registerRepository.findByEmployeeId(register.getEmployeeId()) != null) {
+        throw new EmployeeFoundException("The Employee ID is already registered.", String.valueOf(HttpStatus.FOUND.value()));
+    }
+
+    if (registerRepository.findByUserName(register.getUserName()) != null) {
+        throw new UserNameFoundException("The username is already taken.", String.valueOf(HttpStatus.FOUND.value()));
+    }
+
+    if (registerRepository.findByEmail(register.getEmail()) != null) {
+        throw new EmailFoundException("The email is already registered.", String.valueOf(HttpStatus.FOUND.value()));
+    }
+
+    String encryptedPassword = passwordEncoder.encode(register.getPassword());
+    register.setPassword(encryptedPassword);
+
+
+    return registerRepository.save(register);
     }
 
 
@@ -73,5 +89,16 @@ public class RegisterService {
         }
 
         return registerRepository.save(existing);
+    }
+
+    public Register getUserName(String userName) throws UserNameNotFoundException {
+        Register register = registerRepository.findByUserName(userName);
+
+        if(register==null){
+            throw new UserNameNotFoundException("Employee with given user not found",String.valueOf(HttpStatus.FOUND.value()));
+        }
+        else{
+            return register;
+        }
     }
 }

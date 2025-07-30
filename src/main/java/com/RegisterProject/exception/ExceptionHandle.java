@@ -34,5 +34,55 @@ public class ExceptionHandle {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
     }
 
+    @ExceptionHandler(EmployeeNotFoundException.class)
+    public ApiResponse<Object> handleEmployeeNotFound(EmployeeNotFoundException ex, HttpServletRequest request) {
+        ApiResponse<Object> response = new ApiResponse<>(
+                false,
+                "Registration failed",
+                null,
+                ex.getMessage()
+        );
+//        return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
+        return response;
+    }
 
+    @ExceptionHandler(UserNameFoundException.class)
+    public ApiResponse<Object> handleUserNameFound(UserNameFoundException ex, HttpServletRequest request) {
+       return new ApiResponse<>(
+                false,
+                "Duplicate User Name",
+                null,
+                ex.getMessage()
+        );
+    }
+
+    @ExceptionHandler(UserNameNotFoundException.class)
+    public ResponseEntity<ApiResponse<Object>> handleUserNameNotFound(
+            UserNameNotFoundException ex,
+            HttpServletRequest request) {
+
+        ApiResponse<Object> response = new ApiResponse<>(
+                false,
+                "User Name Not Found",
+                null,
+                ex.getMessage()
+        );
+
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+    }
+
+    @ExceptionHandler(EmailFoundException.class)
+    public ResponseEntity<ApiResponse<Object>> handleEmailFound(
+            UserNameNotFoundException ex,
+            HttpServletRequest request) {
+
+        ApiResponse<Object> response = new ApiResponse<>(
+                false,
+                "User Name Not Found",
+                null,
+                ex.getMessage()
+        );
+
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+    }
 }

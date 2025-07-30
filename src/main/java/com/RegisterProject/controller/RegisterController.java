@@ -1,21 +1,24 @@
 package com.RegisterProject.controller;
 
 import com.RegisterProject.entity.Register;
+import com.RegisterProject.exception.EmailFoundException;
 import com.RegisterProject.exception.EmployeeFoundException;
+import com.RegisterProject.exception.UserNameFoundException;
+import com.RegisterProject.exception.UserNameNotFoundException;
 import com.RegisterProject.payLoad.ApiResponse;
 import com.RegisterProject.payLoad.RegisterResponseDTO;
+import com.RegisterProject.payLoad.UserPasswordDTO;
 import com.RegisterProject.service.RegisterService;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.repository.query.Param;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDateTime;
+
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+
 
 @RestController
 @RequestMapping("/register")
@@ -42,25 +45,22 @@ public class RegisterController {
 //        return new ResponseEntity<>(response, HttpStatus.CREATED);
 //    }
 
-    @PostMapping("/add/{employeeId}")
-    public ApiResponse<RegisterResponseDTO> registerUser(
-            @RequestBody Register register,
-            @PathVariable String employeeId) throws EmployeeFoundException {
-        Register savedRegister = registerService.createRegister(register, employeeId);
+    @PostMapping("/add")
+    public ApiResponse<RegisterResponseDTO> registerUser(@RequestBody Register register)
+            throws EmployeeFoundException, EmailFoundException, UserNameFoundException {
+        Register savedRegister = registerService.createRegister(register);
 
         RegisterResponseDTO responseData = new RegisterResponseDTO(
                 savedRegister.getEmployeeId(),    // Assuming this is the database ID or employee ID
                 savedRegister.getUserName()
         );
 
-        ApiResponse<RegisterResponseDTO> response = new ApiResponse<>(
+        return new ApiResponse<>(
                 true,
                 "User registered successfully",
                 responseData,
                 null
         );
-
-        return response;
     }
 
 //    @GetMapping("/getAll")
@@ -237,6 +237,28 @@ public class RegisterController {
 //        return response;
 //    }
 
+    @GetMapping("/getUser/{userName}")
+    public ApiResponse<UserPasswordDTO> GetUserName(@PathVariable String userName) throws UserNameNotFoundException {
+        Register user = registerService.getUserName(userName);
+
+        UserPasswordDTO responseDTO = new UserPasswordDTO(
+                user.getUserName(),
+                user.getPassword()
+        );
+        return new ApiResponse<>(
+                true,
+                "UserName exist",
+                responseDTO,
+                null
+        );
+
+    }
+
+    @GetMapping("/CSRF")
+    public CsrfToken csrfToken(HttpServletRequest http)
+    {
+        return (CsrfToken) http.getAttribute("_csrf");
+    }
 }
 
 

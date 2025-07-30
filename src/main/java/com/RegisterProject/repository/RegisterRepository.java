@@ -10,5 +10,8 @@ public interface RegisterRepository extends JpaRepository<Register, String> {
     String deleteByEmployeeId(String employeeId);
     Register findByEmployeeId(String employeeId);
 
+    Register findByUserName(String userName);
+
+    Register findByEmail(String email);
 //    Register partiallyUpdateEmpId(Register register, String employeeId);
 }
